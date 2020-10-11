@@ -64,6 +64,8 @@ namespace Forditoprogramok
 
         public void replaceFirst(){
 
+            Regex rgx = new Regex(@"^[a-zA-Z0-9]\d{2}[a-zA-Z0-9](-\d{3}){2}[A-Za-z0-9]$");
+
             Dictionary<string,string> fromTo=new Dictionary<string,string>();
             /*List<string> from = new List<string>();
             List<string> to = new List<string>();*/
@@ -88,8 +90,6 @@ namespace Forditoprogramok
             fromTo.Add("; ", ";");
             fromTo.Add(" =", "=");
             fromTo.Add("= ", "=");
-
-
             #region
             /*
             from.Add("  ");
@@ -107,6 +107,35 @@ namespace Forditoprogramok
             {
                 replaceText(kvp.Key, kvp.Value);
             }
+
+            content = Regex.Replace(content, @"int [a-zA-Z0-9_-]*", "VARIABLE");
+            content = Regex.Replace(content, @"^[0-9]*", "CONST");
+
+            fromTo.Add("if", " 10 ");
+            fromTo.Add("for", " 20 ");
+            fromTo.Add("while", " 30 ");
+            fromTo.Add("(", " 40 ");
+            fromTo.Add(")", " 50 ");
+            fromTo.Add("==", " 60 ");
+            fromTo.Add("=", " 61 ");
+            fromTo.Add("{", " 70 ");
+            fromTo.Add("}", " 80 ");
+
+            foreach (KeyValuePair<string, string> kvp in fromTo)
+            {
+                replaceText(kvp.Key, kvp.Value);
+            }
+
+            
+            if (rgx.IsMatch("[0-9]*"))
+            {
+                MatchCollection mc = Regex.Matches(content, "[0-9]");
+                for (int i = 0; i < mc.Count; i++)
+                {
+                    replaceText(content, "CONST");
+                }
+            }
+
         }
 
 

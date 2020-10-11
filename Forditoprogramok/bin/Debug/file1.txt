@@ -9,4 +9,8 @@ for (int i=0;i<n-1;i++) {
  a[j+1] = tmp;
  }
  }
+ while (i < 10){
+  i++; 
+}
+
 } 
