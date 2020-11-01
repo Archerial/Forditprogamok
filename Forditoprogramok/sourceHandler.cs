@@ -62,93 +62,89 @@ namespace Forditoprogramok
             }
         }
 
-        public void replaceFirst(){
 
-            Regex rgx = new Regex(@"^[a-zA-Z0-9]\d{2}[a-zA-Z0-9](-\d{3}){2}[A-Za-z0-9]$");
+        List<string> symbolTable = new List<string>();
+        int symbolIndex = 0;
 
-            Dictionary<string,string> fromTo=new Dictionary<string,string>();
-            /*List<string> from = new List<string>();
-            List<string> to = new List<string>();*/
+        string changeVariableAndConstants(string varAndConstName)
+        {
+            symbolTable.Add(varAndConstName);
+            symbolIndex += 1;
+            string result = "00" + symbolIndex.ToString();
+            return result.Substring(result.Length - 3);
+        }
 
+        Dictionary<string, string> fromTo = new Dictionary<string, string>();
 
-            content = Regex.Replace(content,@"//(.*?)\r?\n","");
-            content = Regex.Replace(content, @"/\*(.*?)\*/","");
-            content = Regex.Replace(content, @"/\*[\w\W]*\*/","");
-
-            fromTo.Add("  "," ");
-            fromTo.Add("\r\n"," ");
+        public void replaceFirst()
+        {
+            fromTo.Add("  ", " ");
+            fromTo.Add("\n", " ");
             fromTo.Add("    ", " ");    //Tab to 1 space
             fromTo.Add(" {", "{");
             fromTo.Add(" }", "}");
-            fromTo.Add("{ ", "{");
             fromTo.Add("} ", "}");
+            fromTo.Add("{ ", "{");
             fromTo.Add(" (", "(");
-            fromTo.Add(" )", ")");
             fromTo.Add("( ", "(");
+            fromTo.Add(" )", ")");
             fromTo.Add(") ", ")");
             fromTo.Add(" ;", ";");
             fromTo.Add("; ", ";");
             fromTo.Add(" =", "=");
             fromTo.Add("= ", "=");
-            #region
-            /*
-            from.Add("  ");
-            to.Add(" ");
-            from.Add("\br");
-            to.Add(" ");
-
-            for (int i = 0; i < from.Count; i++)
-            {
-                replaceText(from[i], to[i]);
-            }*/
-            #endregion
-
-            foreach (KeyValuePair<string,string> kvp in fromTo)
-            {
-                replaceText(kvp.Key, kvp.Value);
-            }
-
-            content = Regex.Replace(content, @"int [a-zA-Z0-9_-]*", "VARIABLE");
-            content = Regex.Replace(content, @"^[0-9]*", "CONST");
-
-            fromTo.Add("if", " 10 ");
+            fromTo.Add("IF", " 10 ");
             fromTo.Add("for", " 20 ");
             fromTo.Add("while", " 30 ");
+            fromTo.Add("switch", " 31 ");
+            fromTo.Add("case", " 32 ");
+            fromTo.Add("else", " 34 ");
             fromTo.Add("(", " 40 ");
             fromTo.Add(")", " 50 ");
             fromTo.Add("==", " 60 ");
             fromTo.Add("=", " 61 ");
             fromTo.Add("{", " 70 ");
             fromTo.Add("}", " 80 ");
+            fromTo.Add("+", " 81 ");
+            fromTo.Add("++", " 82 ");
+            fromTo.Add("-", " 83 ");
+            fromTo.Add("--", " 84 ");
+            fromTo.Add("-=", " 85 ");
+            fromTo.Add("+=", " 86 ");
+            fromTo.Add(">", " 87 ");
+            fromTo.Add("<", " 88 ");
+            fromTo.Add(">=", " 89 ");
+            fromTo.Add("<=", " 90 ");
 
             foreach (KeyValuePair<string, string> kvp in fromTo)
             {
                 replaceText(kvp.Key, kvp.Value);
             }
+        }
 
-            
-            if (rgx.IsMatch("[0-9]*"))
+        public void replaceContent()
+        {
+            var blockComment = @"/[*][\w\d\s]+[*]/";
+            var lineComment = @"//.*?\n";
+
+            string fromNum = @"([0-9]+)";
+            string fromVar = @"([a-z-_]+)";
+
+            content = Regex.Replace(content, blockComment, "  ");
+            content = Regex.Replace(content, lineComment, "  ");
+
+
+            content = Regex.Replace(content, fromNum, changeVariableAndConstants("$1"));
+            content = Regex.Replace(content, fromVar, changeVariableAndConstants("$1"));
+
+            foreach (var x in fromTo)
             {
-                MatchCollection mc = Regex.Matches(content, "[0-9]");
-                for (int i = 0; i < mc.Count; i++)
+                while (content.Contains(x.Key))
                 {
-                    replaceText(content, "CONST");
+                    content = content.Replace(x.Key, x.Value);
                 }
             }
 
-        }
-
-
-        public void replaceContent(string s)
-        {
-            try
-            {
-                this.content += s;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
         }
         public void openFileToWrite()
         {

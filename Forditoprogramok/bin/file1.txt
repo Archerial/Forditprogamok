@@ -1,12 +1,6 @@
-for (int i=0;i<n-1;i++) {
- for (int j=0;j<n-1;j++) { //Komment
- if(a[j]>a[j+1]) {
- tmp = a[j];
- /* több soros
-    komment
- */
- a[j] = a[j+1];
- a[j+1] = tmp;
- }
- }
-} 
+\n\n/* block comment \n
+almalma
+*/\n
+//line comment\n
+// line comment\n
+IF ( a == 2 ) { b = 6 }
